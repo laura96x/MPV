@@ -11,9 +11,14 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, HomeFragment.onHomeFragment, PhotosFragment.onPhotoFragment{
+public class MainActivity extends AppCompatActivity
+        implements NavigationView.OnNavigationItemSelectedListener,
+        HomeFragment.onHomeFragment,
+        PhotosFragment.onPhotoFragment, View.OnClickListener {
+
     private DrawerLayout drawer;
     NavigationView navigationView;
 
@@ -21,6 +26,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     MusicFragment musicFragment;
     VideoFragment videoFragment;
     PhotosFragment photosFragment;
+
+    int container = R.id.fragment_container;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,7 +52,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         toggle.syncState();
 
         if (savedInstanceState == null) {
-            getSupportFragmentManager().beginTransaction().add(R.id.fragment_container, homeFragment).commit();
+            getSupportFragmentManager().beginTransaction().add(container, homeFragment).commit();
             navigationView.setCheckedItem(R.id.nav_home);
         }
     }
@@ -77,16 +84,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         switch (menuItem.getItemId()) {
             case R.id.nav_home:
 //                Toast.makeText(this, "Home is in your heart, fag.", Toast.LENGTH_SHORT).show();
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, homeFragment).addToBackStack(null).commit();
+                getSupportFragmentManager().beginTransaction().replace(container, homeFragment).addToBackStack(null).commit();
                 break;
             case R.id.nav_music:
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, musicFragment).addToBackStack(null).commit();
+                getSupportFragmentManager().beginTransaction().replace(container, musicFragment).addToBackStack(null).commit();
                 break;
             case R.id.nav_videos:
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, videoFragment).addToBackStack(null).commit();
+                getSupportFragmentManager().beginTransaction().replace(container, videoFragment).addToBackStack(null).commit();
                 break;
             case R.id.nav_photos:
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, photosFragment).addToBackStack(null).commit();
+                getSupportFragmentManager().beginTransaction().replace(container, photosFragment).addToBackStack(null).commit();
                 break;
             case R.id.nav_settings:
                 Toast.makeText(this, "Coming Soon!", Toast.LENGTH_SHORT).show();
@@ -106,15 +113,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Log.d("demo", "in main fromHomeToOther" + num);
         switch (num) {
             case 0: // music
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, musicFragment).addToBackStack(null).commit();
+                getSupportFragmentManager().beginTransaction().replace(container, musicFragment).addToBackStack(null).commit();
                 navigationView.setCheckedItem(R.id.nav_music);
                 break;
             case 1: // video
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, videoFragment).addToBackStack(null).commit();
+                getSupportFragmentManager().beginTransaction().replace(container, videoFragment).addToBackStack(null).commit();
                 navigationView.setCheckedItem(R.id.nav_videos);
                 break;
             case 2: // photos
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, photosFragment).addToBackStack(null).commit();
+                getSupportFragmentManager().beginTransaction().replace(container, photosFragment).addToBackStack(null).commit();
                 navigationView.setCheckedItem(R.id.nav_photos);
                 break;
             default:
@@ -125,5 +132,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public void fromAlbumToPictures(String title) {
         Log.d("demo", "in main fromAlbumToPictures " + title);
+    }
+
+    @Override
+    public void onClick(View v) {
+        Log.d("demo", "in main onClick");
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(container, homeFragment)
+                .addToBackStack(null)
+                .commit();
     }
 }
