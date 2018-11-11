@@ -15,7 +15,7 @@ import android.view.ViewGroup;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class VideoFragment extends Fragment {
+public class  VideoFragment extends Fragment {
 
 
     public VideoFragment() {
