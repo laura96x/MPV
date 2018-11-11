@@ -4,9 +4,6 @@
     <item android:id="@+id/menu_item_sort"
         android:title="Sort ASC"
         />
-    <item android:id="@+id/menu_item_add"
-        android:title="Add"
-        />
     <item android:id="@+id/menu_item_delete"
         android:title="Delete"
         />

@@ -6,14 +6,29 @@
     tools:context=".PhotosFragment"
     android:background="@android:color/holo_purple">
 
-    <ListView
+    <!--<ListView-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:id="@+id/photoAlbumListView"-->
+        <!--android:cacheColorHint="#00000000"-->
+        <!--android:dividerHeight="1dp"-->
+        <!--android:divider="#d1d1d1"-->
+
+        <!--/>-->
+    <GridView
+        android:id="@+id/galleryGridView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/photoAlbumListView"
-        android:cacheColorHint="#00000000"
-        android:dividerHeight="1dp"
-        android:divider="#d1d1d1"
-
-        />
+        android:paddingTop="5dp"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp"
+        android:numColumns="auto_fit"
+        android:columnWidth="172dp"
+        android:horizontalSpacing="5dp"
+        android:verticalSpacing="5dp"
+        android:gravity="center"
+        android:stretchMode="columnWidth"
+        android:background="#ffffff">
+    </GridView>
 
 </FrameLayout>

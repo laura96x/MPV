@@ -1,10 +1,21 @@
 package com.example.hara.learninguimusicapp;
 
 
+import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.res.Resources;
+import android.database.Cursor;
+import android.database.MergeCursor;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -13,9 +24,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.GridView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 
 
 /**
@@ -23,15 +38,14 @@ import java.util.ArrayList;
  */
 public class PhotosFragment extends Fragment {
 
-    ArrayList<String> albums;
-    ArrayAdapter<String> albumListAdapter;
-
     private onPhotoFragment mListener;
+
+    GridView galleryGridView;
+    ArrayList<HashMap<String, String>> albumList = new ArrayList<>();
 
     public PhotosFragment() {
         // Required empty public constructor
     }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -39,21 +53,33 @@ public class PhotosFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_photos, container, false);
         getActivity().setTitle("Photos");
-        ListView listView = view.findViewById(R.id.photoAlbumListView);
-        albums = new ArrayList<>();
-        albums.add("Camera");
-        albums.add("Screenshots");
-        albums.add("Beach");
-        albums.add("Trip 2015");
-        albums.add("School 2017");
-        albums.add("Hidden");
-        albumListAdapter = new ArrayAdapter<>(getContext(), R.layout.photo_album_list_item, R.id.textPhotoAlbum, albums);
-        listView.setAdapter(albumListAdapter);
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Log.d("demo", "clicked " + albums.get(position));
-                mListener.fromAlbumToPictures(albums.get(position));
+        if (getArguments() != null) {
+            albumList = (ArrayList<HashMap<String, String>>) getArguments().getSerializable(MainActivity.albumListKey);
+            Log.d("demo", "albumList: " + albumList);
+        }
+
+        galleryGridView = view.findViewById(R.id.galleryGridView);
+
+        int iDisplayWidth = getResources().getDisplayMetrics().widthPixels ;
+        Resources resources = getContext().getApplicationContext().getResources();
+        DisplayMetrics metrics = resources.getDisplayMetrics();
+        float dp = iDisplayWidth / (metrics.densityDpi / 160f);
+
+        if(dp < 360)
+        {
+            dp = (dp - 17) / 2;
+            float px = Function.convertDpToPixel(dp, getContext().getApplicationContext());
+            galleryGridView.setColumnWidth(Math.round(px));
+        }
+
+        AlbumAdapter adapter = new AlbumAdapter(getActivity(), albumList);
+        galleryGridView.setAdapter(adapter);
+
+        galleryGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            public void onItemClick(AdapterView<?> parent, View view,
+                                    final int position, long id) {
+
+                mListener.fromAlbumToPictures(albumList.get(+position).get(Function.KEY_ALBUM));
             }
         });
 
