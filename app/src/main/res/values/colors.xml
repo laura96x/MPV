@@ -17,5 +17,10 @@
     <!--<color name="itemIconTint">#FFFFFF</color>-->
     <!--color of title in toolbar-->
     <!--<color name="tabTitleTextColor">#FFFFFF</color>-->
+
+    <!--colors for the sliding bar-->
+    <color name="backgroundColor">#ffff</color>
+    <color name="textColor">#000</color>
+    <color name="songTimerColor">#484848</color>
 </resources>
 

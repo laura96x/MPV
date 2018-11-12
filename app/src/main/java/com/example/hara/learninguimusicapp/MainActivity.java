@@ -22,7 +22,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.GridView;
+import android.widget.ImageButton;
+import android.widget.SeekBar;
 import android.widget.Toast;
+
+import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -53,6 +57,13 @@ public class MainActivity extends AppCompatActivity implements
     LoadAlbum loadAlbumTask;
     GridView galleryGridView;
     ArrayList<HashMap<String, String>> albumList = new ArrayList<>();
+
+    ImageButton play, pause, play_main, pause_main;
+    ImageButton repeat, shuffle;
+    private SlidingUpPanelLayout mLayout;
+    boolean onRepeat = false;
+    boolean onShuffle = false;
+    SeekBar songTimeBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,6 +97,95 @@ public class MainActivity extends AppCompatActivity implements
         if(!Function.hasPermissions(this, PERMISSIONS)){
             ActivityCompat.requestPermissions(this, PERMISSIONS, REQUEST_PERMISSION_KEY);
         }
+
+        play = findViewById(R.id.play_button);
+        pause = findViewById(R.id.pause_button);
+        play_main =  findViewById(R.id.play_button_main);
+        pause_main = findViewById(R.id.pause_button_main);
+        repeat = findViewById(R.id.repeat_button);
+        shuffle = findViewById(R.id.shuffle_button);
+        songTimeBar = findViewById(R.id.song_time_seekbar);
+        mLayout = findViewById(R.id.slidingPanel);
+
+        play.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                play.setVisibility(View.GONE);
+                pause.setVisibility(View.VISIBLE);
+                Toast.makeText(MainActivity.this,"Song Is now Playing",Toast.LENGTH_SHORT).show();
+                if (play_main.getVisibility() == View.VISIBLE){
+                    play_main.setVisibility(View.GONE);
+                    pause_main.setVisibility(View.VISIBLE);
+                }
+
+            }
+        });
+
+        pause.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                pause.setVisibility(View.GONE);
+                play.setVisibility(View.VISIBLE);
+                Toast.makeText(MainActivity.this,"Song is Pause",Toast.LENGTH_SHORT).show();
+                if (pause_main.getVisibility() == View.VISIBLE){
+                    pause_main.setVisibility(View.GONE);
+                    play_main.setVisibility(View.VISIBLE);
+                }
+            }
+        });
+
+        play_main.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                play_main.setVisibility(View.GONE);
+                pause_main.setVisibility(View.VISIBLE);
+                Toast.makeText(MainActivity.this,"Song Is now Playing",Toast.LENGTH_SHORT).show();
+                if (play.getVisibility() == View.VISIBLE){
+                    play.setVisibility(View.GONE);
+                    pause.setVisibility(View.VISIBLE);
+                }
+            }
+        });
+
+        pause_main.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                pause_main.setVisibility(View.GONE);
+                play_main.setVisibility(View.VISIBLE);
+                Toast.makeText(MainActivity.this,"Song is Pause",Toast.LENGTH_SHORT).show();
+                if (pause.getVisibility() == View.VISIBLE){
+                    pause.setVisibility(View.GONE);
+                    play.setVisibility(View.VISIBLE);
+                }
+            }
+        });
+
+        repeat.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!onRepeat) {
+                    repeat.setImageResource(R.drawable.repeat_black);
+                    onRepeat = true;
+                } else {
+                    repeat.setImageResource(R.drawable.repeat_white);
+                    onRepeat = false;
+                }
+
+            }
+        });
+
+        shuffle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!onShuffle) {
+                    shuffle.setImageResource(R.drawable.shuffle_black);
+                    onShuffle = true;
+                } else {
+                    shuffle.setImageResource(R.drawable.shuffle_white);
+                    onShuffle = false;
+                }
+            }
+        });
     }
 
     @Override
@@ -96,17 +196,22 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onBackPressed() {
-        Log.d("demo", "onBackPressed");
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
-        }
-        else {
-            Log.d("demo", "getSupportFragmentManager().getBackStackEntryCount() " + getSupportFragmentManager().getBackStackEntryCount());
-            if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
-                getSupportFragmentManager().popBackStack();
-            } else {
-                super.onBackPressed();
+        if (mLayout != null &&
+                (mLayout.getPanelState() == SlidingUpPanelLayout.PanelState.EXPANDED ||
+                        mLayout.getPanelState() == SlidingUpPanelLayout.PanelState.ANCHORED)) {
+            mLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+        } else {
+            if (drawer.isDrawerOpen(GravityCompat.START)) {
+                drawer.closeDrawer(GravityCompat.START);
             }
+            else {
+                if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+                    getSupportFragmentManager().popBackStack();
+                } else {
+                    super.onBackPressed();
+                }
+            }
+            super.onBackPressed();
         }
     }
 
