@@ -1,6 +1,7 @@
 package com.example.hara.learninguimusicapp;
 
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -17,6 +18,7 @@ import android.view.ViewGroup;
  */
 public class VideoFragment extends Fragment {
 
+    private onVideoFragment mListener;
 
     public VideoFragment() {
         // Required empty public constructor
@@ -28,7 +30,8 @@ public class VideoFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_video, container, false);
-        getActivity().setTitle("Videos");
+//        getActivity().setTitle("Videos");
+        mListener.setFragmentTitle("Videos");
         return view;
     }
 
@@ -49,5 +52,27 @@ public class VideoFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         Log.d("demo", "MusicFragment clicked " + item.getTitle());
         return true;
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof onVideoFragment) {
+            mListener = (onVideoFragment) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement onVideoFragment");
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mListener = null;
+    }
+
+    public interface onVideoFragment {
+        // TODO: Update argument type and name
+        void setFragmentTitle(String title);
     }
 }

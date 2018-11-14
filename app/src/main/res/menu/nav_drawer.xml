@@ -22,7 +22,7 @@
             android:title="Photos" />
     </group>
 
-    <item android:title="Kill me pls">
+    <item android:title="Other">
         <menu>
             <item
                 android:id="@+id/nav_settings"

@@ -1,5 +1,7 @@
 package com.example.hara.learninguimusicapp;
 
+import android.content.Context;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -18,20 +20,24 @@ import java.util.Collections;
 import java.util.Comparator;
 
 public class MusicFragment extends Fragment {
+
+    private onMusicFragment mListener;
+
     private TabLayout tabLayout;
-    private ViewPager viewPager;
+    public static ViewPager viewPager;
 
     ArrayList<Song> songs;
     public static String songKey = "song";
     public static String stringKey = "string";
 
-
+    SongFragment songFragment;
+    ArtistFragment artistFragment;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
-        getActivity().setTitle("Music");
+
         setHasOptionsMenu(true);
     }
 
@@ -52,6 +58,7 @@ public class MusicFragment extends Fragment {
                 } else {
                     item.setTitle("Sort ASC");
                 }
+                Log.d("demo", "music current " + viewPager.getCurrentItem());
                 break;
         }
         return true;
@@ -64,13 +71,13 @@ public class MusicFragment extends Fragment {
         tabLayout = view.findViewById(R.id.music_tab);
         viewPager = view.findViewById(R.id.viewpager_id);
         Log.d("demo", "MusicFragment.onCreateView");
-        getActivity().setTitle("Music");
+        mListener.setFragmentTitle("Music");
 
 
-        SongFragment songFragment = new SongFragment();
-        ArtistFragment artistFragment = new ArtistFragment();
 
-        ViewPagerAdapter adapter = new ViewPagerAdapter(getFragmentManager());
+        artistFragment = new ArtistFragment();
+
+        final ViewPagerAdapter adapter = new ViewPagerAdapter(getFragmentManager());
 
         songs = new ArrayList<>();
 
@@ -84,24 +91,81 @@ public class MusicFragment extends Fragment {
         songs.add(new Song("song 8", "artist C"));
         songs.add(new Song("song 9", "artist M"));
 
-        Bundle bundle = new Bundle();
-        ArrayList<Song> songs1 = songs;
-        bundle.putSerializable(songKey, songs1);
-        bundle.putString(stringKey, "song");
-        songFragment.setArguments(bundle);
 
-        bundle = new Bundle();
-        ArrayList<Song> songs2 = songs;
-        bundle.putSerializable(songKey, songs2);
-        bundle.putString(stringKey, "artist");
-        artistFragment.setArguments(bundle);
+        ArrayList<Song> songsToSongs = new ArrayList<>();
+        songsToSongs.addAll(songs);
+        songFragment = SongFragment.newInstance(songsToSongs);
+
+        ArrayList<Song> songsToArtist = new ArrayList<>();
+        songsToArtist.addAll(songs);
+        artistFragment = ArtistFragment.newInstance(songsToArtist);
+
 
         adapter.addFragment(songFragment, "Song");
         adapter.addFragment(artistFragment, "Artist");
 
         viewPager.setAdapter(adapter);
+
+        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int i, float v, int i1) {
+            }
+
+            @Override
+            public void onPageSelected(int i) {
+                Log.d("demo", "2i " + i);
+                Bundle bundle;
+                switch (i) {
+                    case 0:
+                        bundle = new Bundle();
+                        ArrayList<Song> songs1 = new ArrayList<>();
+//        songs1.addAll(songs);
+                        songs1 = songs;
+                        bundle.putSerializable(songKey, songs1);
+                        bundle.putString(stringKey, "song");
+                        songFragment.setArguments(bundle);
+                        break;
+                    case 1:
+                        bundle = new Bundle();
+                        ArrayList<Song> songs2 = new ArrayList<>();
+//        songs2.addAll(songs);
+                        songs2 = songs;
+                        bundle.putSerializable(songKey, songs2);
+                        bundle.putString(stringKey, "artist");
+                        artistFragment.setArguments(bundle);
+                        break;
+                }
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int i) {
+            }
+        });
+
         tabLayout.setupWithViewPager(viewPager);
         Log.d("demo", "MusicFragment.onCreateView end");
         return view;
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof onMusicFragment) {
+            mListener = (onMusicFragment) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement onMusicFragment");
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mListener = null;
+    }
+
+    public interface onMusicFragment {
+        // TODO: Update argument type and name
+        void setFragmentTitle(String title);
     }
 }

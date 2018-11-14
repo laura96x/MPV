@@ -34,19 +34,15 @@ import java.util.HashMap;
 
 public class MainActivity extends AppCompatActivity implements
         NavigationView.OnNavigationItemSelectedListener,
-        HomeFragment.onHomeFragment,
-        PhotosFragment.onPhotoFragment,
         View.OnClickListener,
-        AlbumPicturesFragment.onAlbumPicturesFragment {
+        HomeFragment.onHomeFragment,
+        MusicFragment.onMusicFragment,
+        PhotosFragment.onPhotoFragment,
+        AlbumPicturesFragment.onAlbumPicturesFragment,
+        VideoFragment.onVideoFragment{
 
     private DrawerLayout drawer;
     NavigationView navigationView;
-
-    HomeFragment homeFragment;
-    MusicFragment musicFragment;
-    VideoFragment videoFragment;
-    PhotosFragment photosFragment;
-    AlbumPicturesFragment albumPicturesFragment;
 
     int container = R.id.fragment_container;
     public static String albumNameKey = "album name";
@@ -70,26 +66,19 @@ public class MainActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        homeFragment = new HomeFragment();
-        musicFragment = new MusicFragment();
-        videoFragment = new VideoFragment();
-        photosFragment = new PhotosFragment();
-        albumPicturesFragment = new AlbumPicturesFragment();
-
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         drawer = findViewById(R.id.drawer_layout);
-
-        navigationView = findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
-
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
+        navigationView = findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+
         if (savedInstanceState == null) {
-            getSupportFragmentManager().beginTransaction().add(container, homeFragment).commit();
+            getSupportFragmentManager().beginTransaction().add(container, new HomeFragment()).commit();
             navigationView.setCheckedItem(R.id.nav_home);
         }
 
@@ -117,7 +106,6 @@ public class MainActivity extends AppCompatActivity implements
                     play_main.setVisibility(View.GONE);
                     pause_main.setVisibility(View.VISIBLE);
                 }
-
             }
         });
 
@@ -170,7 +158,6 @@ public class MainActivity extends AppCompatActivity implements
                     repeat.setImageResource(R.drawable.repeat_white);
                     onRepeat = false;
                 }
-
             }
         });
 
@@ -196,39 +183,67 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onBackPressed() {
+        Log.d("demo", "pop stack: " + getSupportFragmentManager().getBackStackEntryCount());
         if (mLayout != null &&
                 (mLayout.getPanelState() == SlidingUpPanelLayout.PanelState.EXPANDED ||
                         mLayout.getPanelState() == SlidingUpPanelLayout.PanelState.ANCHORED)) {
+            // if music bar is open
             mLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
         } else {
+            // if music bar is closed
             if (drawer.isDrawerOpen(GravityCompat.START)) {
+                // if nav menu is open
                 drawer.closeDrawer(GravityCompat.START);
             }
             else {
+                // if nav is closed
                 if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+                    Log.d("demo", "pop");
                     getSupportFragmentManager().popBackStack();
                 } else {
-                    super.onBackPressed();
+                    Log.d("demo", "no pop");
+                    //super.onBackPressed();
                 }
             }
-            super.onBackPressed();
+            //super.onBackPressed();
         }
     }
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+        Log.d("demo", "main menu " + menuItem);
         switch (menuItem.getItemId()) {
             case R.id.nav_home:
-                getSupportFragmentManager().beginTransaction().replace(container, homeFragment).addToBackStack(null).commit();
+                Log.d("demo", "menu clicked: nav_home");
+                getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(container, new HomeFragment())
+                        .addToBackStack(null)
+                        .commit();
                 break;
             case R.id.nav_music:
-                getSupportFragmentManager().beginTransaction().replace(container, musicFragment).addToBackStack(null).commit();
+                Log.d("demo", "menu clicked: nav_music");
+                getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(container, new MusicFragment())
+                        .addToBackStack(null)
+                        .commit();
                 break;
             case R.id.nav_videos:
-                getSupportFragmentManager().beginTransaction().replace(container, videoFragment).addToBackStack(null).commit();
+                Log.d("demo", "menu clicked: nav_videos");
+                getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(container, new VideoFragment())
+                        .addToBackStack(null)
+                        .commit();
                 break;
             case R.id.nav_photos:
-                getSupportFragmentManager().beginTransaction().replace(container, photosFragment).addToBackStack(null).commit();
+                Log.d("demo", "menu clicked: nav_photos");
+                getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(container, new PhotosFragment())
+                        .addToBackStack(null)
+                        .commit();
                 break;
             case R.id.nav_settings:
                 Toast.makeText(this, "Coming Soon!", Toast.LENGTH_SHORT).show();
@@ -251,11 +266,12 @@ public class MainActivity extends AppCompatActivity implements
                 navigationView.setCheckedItem(R.id.nav_music);
                 break;
             case 1: // video
-                getSupportFragmentManager().beginTransaction().replace(container, videoFragment).addToBackStack(null).commit();
+                getSupportFragmentManager().beginTransaction().replace(container, new VideoFragment()).addToBackStack(null).commit();
                 navigationView.setCheckedItem(R.id.nav_videos);
                 break;
             case 2: // photos
-                getSupportFragmentManager().beginTransaction().replace(container, photosFragment).addToBackStack(null).commit();
+                PhotosFragment photosFragment = new PhotosFragment();
+                getSupportFragmentManager().beginTransaction().replace(container, photosFragment, "photo frag").addToBackStack(null).commit();
                 navigationView.setCheckedItem(R.id.nav_photos);
                 Bundle bundle = new Bundle();
                 bundle.putSerializable(albumListKey, albumList);
@@ -268,6 +284,7 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void fromAlbumToPictures(String title) {
+        AlbumPicturesFragment albumPicturesFragment = new AlbumPicturesFragment();
         Log.d("demo", "in main fromAlbumToPictures " + title);
         getSupportFragmentManager()
                 .beginTransaction()
@@ -284,9 +301,11 @@ public class MainActivity extends AppCompatActivity implements
         Log.d("demo", "in main onClick");
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(container, homeFragment)
+                .replace(container, new HomeFragment())
                 .addToBackStack(null)
                 .commit();
+        navigationView.setCheckedItem(R.id.nav_home);
+        setTitle("Home");
     }
 
     @Override
@@ -294,6 +313,11 @@ public class MainActivity extends AppCompatActivity implements
         Intent intent = new Intent(MainActivity.this, GalleryPreview.class);
         intent.putExtra(galleryPathKey, path);
         startActivity(intent);
+    }
+
+    @Override
+    public void setFragmentTitle(String title) {
+        setTitle(title);
     }
 
     class LoadAlbum extends AsyncTask<String, Void, String> {
@@ -337,6 +361,12 @@ public class MainActivity extends AppCompatActivity implements
             Collections.sort(albumList, new MapComparator(Function.KEY_TIMESTAMP, "dsc")); // Arranging photo album by timestamp decending
             return xml;
         }
+
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+            Log.d("demo", "load album onPostExecute");
+        }
     }
 
     @Override
@@ -364,12 +394,13 @@ public class MainActivity extends AppCompatActivity implements
         super.onResume();
 
         String[] PERMISSIONS = {Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE};
-        if(!Function.hasPermissions(this, PERMISSIONS)){
+        if (!Function.hasPermissions(this, PERMISSIONS)) {
             ActivityCompat.requestPermissions(this, PERMISSIONS, REQUEST_PERMISSION_KEY);
-        }else{
+        } else {
             Log.d("demo", "onResume Yes");
             loadAlbumTask = new LoadAlbum();
             loadAlbumTask.execute();
+            Log.d("demo", "onResume End");
         }
     }
 

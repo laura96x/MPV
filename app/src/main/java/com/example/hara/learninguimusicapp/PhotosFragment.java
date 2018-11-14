@@ -52,7 +52,8 @@ public class PhotosFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_photos, container, false);
-        getActivity().setTitle("Photos");
+//        getActivity().setTitle("Photos");
+        mListener.setFragmentTitle("Photos");
         if (getArguments() != null) {
             albumList = (ArrayList<HashMap<String, String>>) getArguments().getSerializable(MainActivity.albumListKey);
             Log.d("demo", "albumList: " + albumList);
@@ -124,5 +125,6 @@ public class PhotosFragment extends Fragment {
 
     public interface onPhotoFragment {
         void fromAlbumToPictures(String title);
+        void setFragmentTitle(String title);
     }
 }

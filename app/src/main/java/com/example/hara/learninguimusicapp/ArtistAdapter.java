@@ -37,7 +37,7 @@ public class ArtistAdapter extends ArrayAdapter<Song>{
         }
 
         viewHolder.artist.setText(currentSong.getArtist());
-        viewHolder.options.setOnClickListener(new View.OnClickListener() {
+        convertView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Log.d("demo", "clicked " + currentSong.getTitle());

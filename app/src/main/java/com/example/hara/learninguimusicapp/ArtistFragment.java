@@ -27,6 +27,26 @@ public class ArtistFragment extends Fragment {
     ArrayList<Song> songs;
     ArtistAdapter artistAdapter;
 
+    private static final String ARG_PARAM1 = "param1";
+
+    public static ArtistFragment newInstance(ArrayList<Song> songs) {
+        ArtistFragment fragment = new ArtistFragment();
+        Bundle args = new Bundle();
+        args.putSerializable(ARG_PARAM1, songs);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
+            songs = (ArrayList<Song>) getArguments().getSerializable(ARG_PARAM1);
+        } else {
+            songs = new ArrayList<>();
+        }
+    }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -34,26 +54,23 @@ public class ArtistFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_artist, container, false);
         Log.d("demo", "ArtistFragment.onCreateView");
-        if (getArguments() != null) {
-            Log.d("demo", "quackkk zzzz " + getArguments().getString(MusicFragment.stringKey));
 
-            if (getArguments().getSerializable(MusicFragment.songKey) != null) {
-                songs = (ArrayList<Song>) getArguments().getSerializable(MusicFragment.songKey);
-                Log.d("demo", "b" + songs.toString());
-                ListView listView = view.findViewById(R.id.artistListview);
+        ListView listView = view.findViewById(R.id.artistListview);
 
-                Collections.sort(songs, new Comparator<Song>() {
-                    @Override
-                    public int compare(Song o1, Song o2) {
-                        return o1.compareArtist(o2);
-                    }
-                });
-                Log.d("demo", "b2" + songs.toString());
-                artistAdapter = new ArtistAdapter(getContext(), R.layout.artist_list_item, songs);
-                listView.setAdapter(artistAdapter);
+        Log.d("demo", "b " + songs.toString());
 
+        Collections.sort(songs, new Comparator<Song>() {
+            @Override
+            public int compare(Song o1, Song o2) {
+                return o1.compareArtist(o2);
             }
-        }
+        });
+
+        Log.d("demo", "b2 " + songs.toString());
+
+        artistAdapter = new ArtistAdapter(getContext(), R.layout.artist_list_item, songs);
+        listView.setAdapter(artistAdapter);
+
         return view;
     }
 

@@ -33,7 +33,7 @@ public class HomeFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_home, container, false);
-
+        getActivity().setTitle("Home");
         goToMusic = view.findViewById(R.id.buttonToMusic);
         goToVideo = view.findViewById(R.id.buttonToVideo);
         goToPhotos = view.findViewById(R.id.buttonToPhotos);
@@ -66,7 +66,7 @@ public class HomeFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getActivity().setTitle("Home");
+
         setHasOptionsMenu(true);
     }
 

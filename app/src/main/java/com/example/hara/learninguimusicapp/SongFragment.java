@@ -21,6 +21,25 @@ public class SongFragment extends Fragment {
 
     ArrayList<Song> songs;
     SongAdapter songAdapter;
+    private static final String ARG_PARAM1 = "param1";
+
+    public static SongFragment newInstance(ArrayList<Song> songs) {
+        SongFragment fragment = new SongFragment();
+        Bundle args = new Bundle();
+        args.putSerializable(ARG_PARAM1, songs);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
+            songs = (ArrayList<Song>) getArguments().getSerializable(ARG_PARAM1);
+        } else {
+            songs = new ArrayList<>();
+        }
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -29,37 +48,28 @@ public class SongFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_song, container, false);
         Log.d("demo", "SongFragment.onCreateView");
 
-        if (getArguments() != null) {
-            Log.d("demo", "quackkk " + getArguments().getString(MusicFragment.stringKey));
+        ListView listView = view.findViewById(R.id.songListview);
 
-            if (getArguments().getSerializable(MusicFragment.songKey) != null) {
-                songs = (ArrayList<Song>) getArguments().getSerializable(MusicFragment.songKey);
-                Log.d("demo", "a" + songs.toString());
-                ListView listView = view.findViewById(R.id.songListview);
+        Log.d("demo", "a " + songs.toString());
 
-                Collections.sort(songs, new Comparator<Song>() {
-                    @Override
-                    public int compare(Song o1, Song o2) {
-                        return o1.compareTitle(o2);
-                    }
-                });
-                Log.d("demo", "a2" + songs.toString());
-                songAdapter = new SongAdapter(getContext(), R.layout.song_list_item, songs);
-                listView.setAdapter(songAdapter);
-
+        Collections.sort(songs, new Comparator<Song>() {
+            @Override
+            public int compare(Song o1, Song o2) {
+                return o1.getName().compareTo(o2.getName());
             }
-        }
-        
+        });
+
+        Log.d("demo", "a2 " + songs.toString());
+
+        songAdapter = new SongAdapter(getContext(), R.layout.song_list_item, songs);
+        listView.setAdapter(songAdapter);
+
         return view;
     }
 
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        Log.d("demo", "SongFragment.onCreate");
+    public void onResume() {
+        super.onResume();
     }
 
-    public void testMethod() {
-        Log.d("demo", "testMethod");
-    }
 }
