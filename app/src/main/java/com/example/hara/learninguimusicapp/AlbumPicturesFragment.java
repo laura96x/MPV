@@ -12,6 +12,7 @@ import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,12 +23,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link AlbumPicturesFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- */
+
 public class AlbumPicturesFragment extends Fragment {
 
     private onAlbumPicturesFragment mListener;
@@ -44,9 +40,8 @@ public class AlbumPicturesFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+//        mListener.getBackButton();
         setHasOptionsMenu(true);
-
 
     }
 
@@ -54,6 +49,7 @@ public class AlbumPicturesFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.photo_picture_grid_view, container, false);
+        Log.d("demo", "AlbumPicturesFragment.onCreateView");
         if (getArguments() != null) {
             album_name = getArguments().getString(MainActivity.albumNameKey);
             getActivity().setTitle(album_name);
@@ -88,7 +84,7 @@ public class AlbumPicturesFragment extends Fragment {
             mListener = (onAlbumPicturesFragment) context;
         } else {
             throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
+                    + " must implement onAlbumPicturesFragment");
         }
     }
 
@@ -96,11 +92,6 @@ public class AlbumPicturesFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
-    }
-
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
     }
 
     class LoadAlbumImages extends AsyncTask<String, Void, String> {
@@ -155,5 +146,6 @@ public class AlbumPicturesFragment extends Fragment {
 
     public interface onAlbumPicturesFragment {
         void fromPictureToGallery(String path);
+        void getBackButton();
     }
 }

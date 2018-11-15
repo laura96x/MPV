@@ -61,7 +61,7 @@
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif-condensed"
                     android:lines="1"
-                    android:text="Havana (Camila Cabello song)"
+                    android:text="Havana"
                     android:textColor="@color/textColor"
                     android:textSize="22dp" />
 

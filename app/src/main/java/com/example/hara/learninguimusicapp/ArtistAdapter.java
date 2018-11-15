@@ -17,7 +17,6 @@ public class ArtistAdapter extends ArrayAdapter<Song>{
 
     public ArtistAdapter(@NonNull Context context, int resource, @NonNull List<Song> objects) {
         super(context, resource, objects);
-        Log.d("demo", "context " + context);
     }
 
     @NonNull
@@ -30,7 +29,6 @@ public class ArtistAdapter extends ArrayAdapter<Song>{
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.artist_list_item, parent, false);
             viewHolder = new ViewHolder();
             viewHolder.artist = convertView.findViewById(R.id.artistName);
-            viewHolder.options = convertView.findViewById(R.id.artistOptions);
             convertView.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
@@ -40,7 +38,7 @@ public class ArtistAdapter extends ArrayAdapter<Song>{
         convertView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d("demo", "clicked " + currentSong.getTitle());
+                Log.d("demo", "clicked " + currentSong.getArtist());
             }
         });
         return convertView;
@@ -48,6 +46,5 @@ public class ArtistAdapter extends ArrayAdapter<Song>{
 
     private class ViewHolder {
         TextView artist;
-        ImageView options;
     }
 }

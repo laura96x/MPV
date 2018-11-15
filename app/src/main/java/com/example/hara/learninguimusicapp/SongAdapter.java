@@ -17,7 +17,6 @@ public class SongAdapter extends ArrayAdapter<Song> {
 
     public SongAdapter(@NonNull Context context, int resource, @NonNull List<Song> objects) {
         super(context, resource, objects);
-        Log.d("demo", "context " + context);
     }
 
     @NonNull
@@ -39,10 +38,19 @@ public class SongAdapter extends ArrayAdapter<Song> {
 
         viewHolder.title.setText(currentSong.getTitle());
         viewHolder.artist.setText(currentSong.getArtist());
+        viewHolder.options.setImageResource(0);
         convertView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Log.d("demo", "clicked " + currentSong.getTitle());
+            }
+        });
+
+        convertView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                Log.d("demo", "long clicked " + currentSong.getTitle());
+                return false;
             }
         });
         return convertView;

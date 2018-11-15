@@ -1,19 +1,10 @@
 package com.example.hara.learninguimusicapp;
 
 
-import android.Manifest;
 import android.content.Context;
-import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.content.res.Resources;
-import android.database.Cursor;
-import android.database.MergeCursor;
-import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -23,19 +14,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.GridView;
-import android.widget.ListView;
-import android.widget.Toast;
-
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 
-
-/**
- * A simple {@link Fragment} subclass.
- */
 public class PhotosFragment extends Fragment {
 
     private onPhotoFragment mListener;
@@ -52,7 +34,6 @@ public class PhotosFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_photos, container, false);
-//        getActivity().setTitle("Photos");
         mListener.setFragmentTitle("Photos");
         if (getArguments() != null) {
             albumList = (ArrayList<HashMap<String, String>>) getArguments().getSerializable(MainActivity.albumListKey);
@@ -79,11 +60,9 @@ public class PhotosFragment extends Fragment {
         galleryGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view,
                                     final int position, long id) {
-
                 mListener.fromAlbumToPictures(albumList.get(+position).get(Function.KEY_ALBUM));
             }
         });
-
         return view;
     }
 
@@ -96,8 +75,11 @@ public class PhotosFragment extends Fragment {
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
-        menu.findItem(R.id.menu_item_sort).setVisible(false);
-        menu.findItem(R.id.menu_item_switch).setVisible(false);
+//        menu.findItem(R.id.menu_item_sort).setVisible(false);
+//        menu.findItem(R.id.menu_item_switch).setVisible(false);
+        for (int i = 0; i < menu.size(); i++) {
+            menu.getItem(i).setVisible(false);
+        }
     }
 
     @Override

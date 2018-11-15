@@ -11,6 +11,7 @@ import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -39,7 +40,7 @@ public class MainActivity extends AppCompatActivity implements
         MusicFragment.onMusicFragment,
         PhotosFragment.onPhotoFragment,
         AlbumPicturesFragment.onAlbumPicturesFragment,
-        VideoFragment.onVideoFragment{
+        VideoFragment.onVideoFragment {
 
     private DrawerLayout drawer;
     NavigationView navigationView;
@@ -83,13 +84,13 @@ public class MainActivity extends AppCompatActivity implements
         }
 
         String[] PERMISSIONS = {Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE};
-        if(!Function.hasPermissions(this, PERMISSIONS)){
+        if (!Function.hasPermissions(this, PERMISSIONS)) {
             ActivityCompat.requestPermissions(this, PERMISSIONS, REQUEST_PERMISSION_KEY);
         }
 
         play = findViewById(R.id.play_button);
         pause = findViewById(R.id.pause_button);
-        play_main =  findViewById(R.id.play_button_main);
+        play_main = findViewById(R.id.play_button_main);
         pause_main = findViewById(R.id.pause_button_main);
         repeat = findViewById(R.id.repeat_button);
         shuffle = findViewById(R.id.shuffle_button);
@@ -101,8 +102,8 @@ public class MainActivity extends AppCompatActivity implements
             public void onClick(View view) {
                 play.setVisibility(View.GONE);
                 pause.setVisibility(View.VISIBLE);
-                Toast.makeText(MainActivity.this,"Song Is now Playing",Toast.LENGTH_SHORT).show();
-                if (play_main.getVisibility() == View.VISIBLE){
+                Toast.makeText(MainActivity.this, "Song Is now Playing", Toast.LENGTH_SHORT).show();
+                if (play_main.getVisibility() == View.VISIBLE) {
                     play_main.setVisibility(View.GONE);
                     pause_main.setVisibility(View.VISIBLE);
                 }
@@ -114,8 +115,8 @@ public class MainActivity extends AppCompatActivity implements
             public void onClick(View view) {
                 pause.setVisibility(View.GONE);
                 play.setVisibility(View.VISIBLE);
-                Toast.makeText(MainActivity.this,"Song is Pause",Toast.LENGTH_SHORT).show();
-                if (pause_main.getVisibility() == View.VISIBLE){
+                Toast.makeText(MainActivity.this, "Song is Pause", Toast.LENGTH_SHORT).show();
+                if (pause_main.getVisibility() == View.VISIBLE) {
                     pause_main.setVisibility(View.GONE);
                     play_main.setVisibility(View.VISIBLE);
                 }
@@ -127,8 +128,8 @@ public class MainActivity extends AppCompatActivity implements
             public void onClick(View view) {
                 play_main.setVisibility(View.GONE);
                 pause_main.setVisibility(View.VISIBLE);
-                Toast.makeText(MainActivity.this,"Song Is now Playing",Toast.LENGTH_SHORT).show();
-                if (play.getVisibility() == View.VISIBLE){
+                Toast.makeText(MainActivity.this, "Song Is now Playing", Toast.LENGTH_SHORT).show();
+                if (play.getVisibility() == View.VISIBLE) {
                     play.setVisibility(View.GONE);
                     pause.setVisibility(View.VISIBLE);
                 }
@@ -140,8 +141,8 @@ public class MainActivity extends AppCompatActivity implements
             public void onClick(View view) {
                 pause_main.setVisibility(View.GONE);
                 play_main.setVisibility(View.VISIBLE);
-                Toast.makeText(MainActivity.this,"Song is Pause",Toast.LENGTH_SHORT).show();
-                if (pause.getVisibility() == View.VISIBLE){
+                Toast.makeText(MainActivity.this, "Song is Pause", Toast.LENGTH_SHORT).show();
+                if (pause.getVisibility() == View.VISIBLE) {
                     pause.setVisibility(View.GONE);
                     play.setVisibility(View.VISIBLE);
                 }
@@ -194,31 +195,28 @@ public class MainActivity extends AppCompatActivity implements
             if (drawer.isDrawerOpen(GravityCompat.START)) {
                 // if nav menu is open
                 drawer.closeDrawer(GravityCompat.START);
-            }
-            else {
+            } else {
                 // if nav is closed
                 if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
                     Log.d("demo", "pop");
                     getSupportFragmentManager().popBackStack();
                 } else {
-                    Log.d("demo", "no pop");
-                    //super.onBackPressed();
+                    Log.d("demo", "no more pop");
                 }
             }
-            //super.onBackPressed();
         }
     }
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
         Log.d("demo", "main menu " + menuItem);
+        clearBackStack();
         switch (menuItem.getItemId()) {
             case R.id.nav_home:
                 Log.d("demo", "menu clicked: nav_home");
                 getSupportFragmentManager()
                         .beginTransaction()
                         .replace(container, new HomeFragment())
-                        .addToBackStack(null)
                         .commit();
                 break;
             case R.id.nav_music:
@@ -226,7 +224,6 @@ public class MainActivity extends AppCompatActivity implements
                 getSupportFragmentManager()
                         .beginTransaction()
                         .replace(container, new MusicFragment())
-                        .addToBackStack(null)
                         .commit();
                 break;
             case R.id.nav_videos:
@@ -234,16 +231,18 @@ public class MainActivity extends AppCompatActivity implements
                 getSupportFragmentManager()
                         .beginTransaction()
                         .replace(container, new VideoFragment())
-                        .addToBackStack(null)
                         .commit();
                 break;
             case R.id.nav_photos:
                 Log.d("demo", "menu clicked: nav_photos");
+                PhotosFragment photosFragment = new PhotosFragment();
                 getSupportFragmentManager()
                         .beginTransaction()
-                        .replace(container, new PhotosFragment())
-                        .addToBackStack(null)
+                        .replace(container, photosFragment)
                         .commit();
+                Bundle bundle = new Bundle();
+                bundle.putSerializable(albumListKey, albumList);
+                photosFragment.setArguments(bundle);
                 break;
             case R.id.nav_settings:
                 Toast.makeText(this, "Coming Soon!", Toast.LENGTH_SHORT).show();
@@ -252,26 +251,37 @@ public class MainActivity extends AppCompatActivity implements
                 navigationView.setCheckedItem(menuItem.getItemId());
                 break;
         }
-
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
 
     @Override
     public void fromHomeToOther(int num) {
-        Log.d("demo", "in main fromHomeToOther" + num);
+        Log.d("demo", "in main.fromHomeToOther" + num);
         switch (num) {
             case 0: // music
-                getSupportFragmentManager().beginTransaction().replace(container, new MusicFragment()).addToBackStack(null).commit();
+                getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(container, new MusicFragment())
+                        .addToBackStack(null)
+                        .commit();
                 navigationView.setCheckedItem(R.id.nav_music);
                 break;
             case 1: // video
-                getSupportFragmentManager().beginTransaction().replace(container, new VideoFragment()).addToBackStack(null).commit();
+                getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(container, new VideoFragment())
+                        .addToBackStack(null)
+                        .commit();
                 navigationView.setCheckedItem(R.id.nav_videos);
                 break;
             case 2: // photos
                 PhotosFragment photosFragment = new PhotosFragment();
-                getSupportFragmentManager().beginTransaction().replace(container, photosFragment, "photo frag").addToBackStack(null).commit();
+                getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(container, photosFragment, "photo frag")
+                        .addToBackStack(null)
+                        .commit();
                 navigationView.setCheckedItem(R.id.nav_photos);
                 Bundle bundle = new Bundle();
                 bundle.putSerializable(albumListKey, albumList);
@@ -285,7 +295,7 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void fromAlbumToPictures(String title) {
         AlbumPicturesFragment albumPicturesFragment = new AlbumPicturesFragment();
-        Log.d("demo", "in main fromAlbumToPictures " + title);
+//        Log.d("demo", "in main fromAlbumToPictures " + title);
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(container, albumPicturesFragment)
@@ -298,11 +308,11 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onClick(View v) {
-        Log.d("demo", "in main onClick");
+//        Log.d("demo", "in main onClick");
+        clearBackStack();
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(container, new HomeFragment())
-                .addToBackStack(null)
                 .commit();
         navigationView.setCheckedItem(R.id.nav_home);
         setTitle("Home");
@@ -316,11 +326,25 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
+    public void getBackButton() {
+        Log.d("demo", "in main.getBackButton");
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        Log.d("demo", "in main.onSupportNavigateUp");
+        onBackPressed();
+        return true;
+    }
+
+    @Override
     public void setFragmentTitle(String title) {
         setTitle(title);
     }
 
-    class LoadAlbum extends AsyncTask<String, Void, String> {
+    public class LoadAlbum extends AsyncTask<String, Void, String> {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
@@ -338,15 +362,15 @@ public class MainActivity extends AppCompatActivity implements
             Uri uriInternal = android.provider.MediaStore.Images.Media.INTERNAL_CONTENT_URI;
 
 
-            String[] projection = { MediaStore.MediaColumns.DATA,
+            String[] projection = {MediaStore.MediaColumns.DATA,
                     MediaStore.Images.Media.BUCKET_DISPLAY_NAME,
-                    MediaStore.MediaColumns.DATE_MODIFIED };
+                    MediaStore.MediaColumns.DATE_MODIFIED};
             Cursor cursorExternal = getContentResolver().query(uriExternal, projection, "_data IS NOT NULL) GROUP BY (bucket_display_name",
                     null, null);
             Cursor cursorInternal = getContentResolver().
                     query(uriInternal, projection, "_data IS NOT NULL) GROUP BY (bucket_display_name",
                             null, null);
-            Cursor cursor = new MergeCursor(new Cursor[]{cursorExternal,cursorInternal});
+            Cursor cursor = new MergeCursor(new Cursor[]{cursorExternal, cursorInternal});
 
             while (cursor.moveToNext()) {
 
@@ -365,23 +389,19 @@ public class MainActivity extends AppCompatActivity implements
         @Override
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
-            Log.d("demo", "load album onPostExecute");
         }
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch (requestCode)
-        {
+        switch (requestCode) {
             case REQUEST_PERMISSION_KEY: {
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
-                {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Log.d("demo", "onRequestPermissionsResult Yes");
                     loadAlbumTask = new LoadAlbum();
                     loadAlbumTask.execute();
-                } else
-                {
+                } else {
                     Log.d("demo", "Noooo");
                     Toast.makeText(MainActivity.this, "You must accept permissions.", Toast.LENGTH_LONG).show();
                 }
@@ -397,12 +417,18 @@ public class MainActivity extends AppCompatActivity implements
         if (!Function.hasPermissions(this, PERMISSIONS)) {
             ActivityCompat.requestPermissions(this, PERMISSIONS, REQUEST_PERMISSION_KEY);
         } else {
-            Log.d("demo", "onResume Yes");
             loadAlbumTask = new LoadAlbum();
             loadAlbumTask.execute();
-            Log.d("demo", "onResume End");
         }
     }
 
-
+    private void clearBackStack() {
+        Log.d("demo" , "in main.clearBackStack");
+        if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+            FragmentManager.BackStackEntry entry = getSupportFragmentManager().getBackStackEntryAt(0);
+            getSupportFragmentManager().popBackStack(entry.getId(),
+                    FragmentManager.POP_BACK_STACK_INCLUSIVE);
+            getSupportFragmentManager().executePendingTransactions();
+        }
+    }
 }

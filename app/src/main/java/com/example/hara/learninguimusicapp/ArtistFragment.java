@@ -57,16 +57,16 @@ public class ArtistFragment extends Fragment {
 
         ListView listView = view.findViewById(R.id.artistListview);
 
-        Log.d("demo", "b " + songs.toString());
+//        Log.d("demo", "b " + songs.toString());
 
         Collections.sort(songs, new Comparator<Song>() {
             @Override
             public int compare(Song o1, Song o2) {
-                return o1.compareArtist(o2);
+                return o1.getArtist().compareTo(o2.getArtist());
             }
         });
 
-        Log.d("demo", "b2 " + songs.toString());
+//        Log.d("demo", "b2 " + songs.toString());
 
         artistAdapter = new ArtistAdapter(getContext(), R.layout.artist_list_item, songs);
         listView.setAdapter(artistAdapter);

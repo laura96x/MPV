@@ -8,15 +8,10 @@ import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
-
-/**
- * A simple {@link Fragment} subclass.
- */
 public class HomeFragment extends Fragment {
 
     Button goToMusic, goToVideo, goToPhotos;
@@ -26,7 +21,6 @@ public class HomeFragment extends Fragment {
     public HomeFragment() {
         // Required empty public constructor
     }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -66,18 +60,15 @@ public class HomeFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setHasOptionsMenu(true);
     }
 
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
-        MenuItem menuItem = menu.findItem(R.id.menu_item_switch);
         for (int i = 0; i < menu.size(); i++) {
             menu.getItem(i).setVisible(false);
         }
-//        menuItem.setVisible(true);
     }
 
     @Override
@@ -87,7 +78,7 @@ public class HomeFragment extends Fragment {
             mListener = (onHomeFragment) context;
         } else {
             throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
+                    + " must implement onHomeFragment");
         }
     }
 
@@ -99,6 +90,5 @@ public class HomeFragment extends Fragment {
 
     public interface onHomeFragment{
         void fromHomeToOther(int num);
-
     }
 }
