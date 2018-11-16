@@ -1,7 +1,6 @@
-package com.example.hara.learninguimusicapp;
+package com.example.hara.learninguimusicapp.Music;
 
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -15,6 +14,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.hara.learninguimusicapp.MainActivity;
+import com.example.hara.learninguimusicapp.R;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -23,13 +25,12 @@ public class MusicFragment extends Fragment {
 
     private onMusicFragment mListener;
 
-    private TabLayout tabLayout;
+    public TabLayout tabLayout;
     public ViewPager viewPager;
     ViewPagerAdapter adapter;
 
     ArrayList<Song> songs;
-    public static String songKey = "song";
-    public static String stringKey = "string";
+
     int currentSort = 1; // 0 = DESC, 1 = ASC
     // default = ASC
 
@@ -46,6 +47,7 @@ public class MusicFragment extends Fragment {
     Menu menu2;
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
+        Log.d("demo", "MusicFragment.onPrepareOptionsMenu");
         super.onPrepareOptionsMenu(menu);
         menu2 = menu;
         // set visibility of certain options to false
@@ -74,8 +76,7 @@ public class MusicFragment extends Fragment {
                 }
                 break;
         }
-//        resetSongs();
-
+        sortLists(songs, currentSort);
         Log.d("demo", "MusicFragment currentSort " + currentSort);
         return true;
     }
@@ -95,6 +96,7 @@ public class MusicFragment extends Fragment {
                 }
             });
         }
+        viewPager.getAdapter().notifyDataSetChanged();
         return songs;
     }
 
@@ -104,24 +106,31 @@ public class MusicFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_music, container, false);
         tabLayout = view.findViewById(R.id.music_tab);
         viewPager = view.findViewById(R.id.viewpager_id);
+
         Log.d("demo", "MusicFragment.onCreateView");
         mListener.setFragmentTitle("Music");
+
+        if (getArguments() != null) {
+            Log.d("demo", "MusicFragment getArguments not null");
+            songs = (ArrayList<Song>) getArguments().getSerializable(MainActivity.musicListKey);
+            Log.d("demo", "MusicFragment " + songs.toString());
+        } else {
+            Log.d("demo", "MusicFragment getArguments null");
+            songs = new ArrayList<>();
+            songs.add(new Song("song 1", "artist F"));
+            songs.add(new Song("song 2", "artist T"));
+            songs.add(new Song("song 3", "artist I"));
+            songs.add(new Song("fsong 4", "artist E"));
+            songs.add(new Song("song 5", "artist Q"));
+            songs.add(new Song("song 6", "artist A"));
+            songs.add(new Song("bsong 7", "artist Z"));
+            songs.add(new Song("song 8", "artist C"));
+            songs.add(new Song("song 9", "artist M"));
+        }
 
         artistFragment = new ArtistFragment();
 
         adapter = new ViewPagerAdapter(getFragmentManager());
-
-        songs = new ArrayList<>();
-
-        songs.add(new Song("song 1", "artist F"));
-        songs.add(new Song("song 2", "artist T"));
-        songs.add(new Song("song 3", "artist I"));
-        songs.add(new Song("fsong 4", "artist E"));
-        songs.add(new Song("song 5", "artist Q"));
-        songs.add(new Song("song 6", "artist A"));
-        songs.add(new Song("bsong 7", "artist Z"));
-        songs.add(new Song("song 8", "artist C"));
-        songs.add(new Song("song 9", "artist M"));
 
 
         ArrayList<Song> songsToSongs = new ArrayList<>();
@@ -147,7 +156,7 @@ public class MusicFragment extends Fragment {
 
             @Override
             public void onPageSelected(int i) {
-                Log.d("demo", "2i " + i);
+                Log.d("demo", "addOnPageChangeListener " + i);
                 onPrepareOptionsMenu(menu2); // show or hide menu options
             }
 

@@ -1,4 +1,4 @@
-package com.example.hara.learninguimusicapp;
+package com.example.hara.learninguimusicapp.Music;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -11,17 +11,24 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.hara.learninguimusicapp.MainActivity;
+import com.example.hara.learninguimusicapp.R;
+
 import java.util.List;
 
 public class SongAdapter extends ArrayAdapter<Song> {
 
+    MainActivity thing;
+
     public SongAdapter(@NonNull Context context, int resource, @NonNull List<Song> objects) {
         super(context, resource, objects);
+        thing = (MainActivity) context;
+
     }
 
     @NonNull
     @Override
-    public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+    public View getView(final int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         final Song currentSong = getItem(position);
         ViewHolder viewHolder;
 
@@ -43,6 +50,8 @@ public class SongAdapter extends ArrayAdapter<Song> {
             @Override
             public void onClick(View v) {
                 Log.d("demo", "clicked " + currentSong.getTitle());
+                thing.playSong(position);
+
             }
         });
 

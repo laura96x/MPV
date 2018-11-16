@@ -1,4 +1,4 @@
-package com.example.hara.learninguimusicapp;
+package com.example.hara.learninguimusicapp.Photo;
 
 import android.app.Activity;
 import android.view.LayoutInflater;
@@ -6,20 +6,20 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.example.hara.learninguimusicapp.R;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class AlbumAdapter extends BaseAdapter {
+public class AlbumPicturesGridAdapter extends BaseAdapter {
 
     private Activity activity;
     private ArrayList<HashMap< String, String >> data;
 
-    public AlbumAdapter(Activity a, ArrayList < HashMap < String, String >> d) {
+    public AlbumPicturesGridAdapter(Activity a, ArrayList < HashMap < String, String >> d) {
         activity = a;
         data = d;
     }
@@ -35,46 +35,34 @@ public class AlbumAdapter extends BaseAdapter {
     }
 
     public View getView(int position, View convertView, ViewGroup parent) {
-        AlbumViewHolder holder = null;
+        SingleAlbumViewHolder holder = null;
         if (convertView == null) {
-            holder = new AlbumViewHolder();
+            holder = new SingleAlbumViewHolder();
             convertView = LayoutInflater.from(activity).inflate(
-                    R.layout.album_row, parent, false);
+                    R.layout.album_picture_row, parent, false);
 
             holder.galleryImage = (ImageView) convertView.findViewById(R.id.galleryImage);
-            holder.gallery_count = (TextView) convertView.findViewById(R.id.gallery_count);
-            holder.gallery_title = (TextView) convertView.findViewById(R.id.gallery_title);
 
             convertView.setTag(holder);
         } else {
-            holder = (AlbumViewHolder) convertView.getTag();
+            holder = (SingleAlbumViewHolder) convertView.getTag();
         }
-
         holder.galleryImage.setId(position);
-        holder.gallery_count.setId(position);
-        holder.gallery_title.setId(position);
 
         HashMap < String, String > song = new HashMap < String, String > ();
         song = data.get(position);
         try {
-            holder.gallery_title.setText(song.get(Function.KEY_ALBUM));
-            holder.gallery_count.setText(song.get(Function.KEY_COUNT));
 
-            Glide
-                    .with(activity)
+            Glide.with(activity)
                     .load(new File(song.get(Function.KEY_PATH))) // Uri of the picture
                     .into(holder.galleryImage);
 
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
+        } catch (Exception e) {}
         return convertView;
     }
 
-    class AlbumViewHolder {
+    class SingleAlbumViewHolder {
         ImageView galleryImage;
-        TextView gallery_count, gallery_title;
     }
 }

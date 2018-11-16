@@ -1,7 +1,6 @@
-package com.example.hara.learninguimusicapp;
+package com.example.hara.learninguimusicapp.Photo;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.MergeCursor;
@@ -18,6 +17,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
+
+import com.example.hara.learninguimusicapp.MainActivity;
+import com.example.hara.learninguimusicapp.R;
 
 import java.util.ArrayList;
 import java.util.Collections;

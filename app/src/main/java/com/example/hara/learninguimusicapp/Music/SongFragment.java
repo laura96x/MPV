@@ -1,4 +1,4 @@
-package com.example.hara.learninguimusicapp;
+package com.example.hara.learninguimusicapp.Music;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -9,6 +9,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
+
+import com.example.hara.learninguimusicapp.R;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -57,6 +59,7 @@ public class SongFragment extends Fragment {
 
 //        Log.d("demo", "a " + songs.toString());
 
+        // sort
         assert getArguments() != null;
         if (getArguments().getInt(ARG_PARAM2) == 1) { // ASC
             Collections.sort(songs, new Comparator<Song>() {
@@ -78,6 +81,7 @@ public class SongFragment extends Fragment {
 
         songAdapter = new SongAdapter(getContext(), R.layout.song_list_item, songs);
         listView.setAdapter(songAdapter);
+        
         songAdapter.notifyDataSetChanged();
         registerForContextMenu(listView);
         return view;
@@ -93,10 +97,10 @@ public class SongFragment extends Fragment {
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.song_options_delete:
+            case R.id.song_options_add_to_playlist:
                 Log.d("demo", "clicked " + item.getTitle());
                 return true;
-            case R.id.song_options_add_to_playlist:
+            case R.id.song_options_delete:
                 Log.d("demo", "clicked " + item.getTitle());
                 return true;
             default:
@@ -108,5 +112,7 @@ public class SongFragment extends Fragment {
     public void onResume() {
         super.onResume();
     }
+
+
 
 }

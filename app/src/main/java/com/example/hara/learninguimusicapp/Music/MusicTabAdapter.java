@@ -1,4 +1,4 @@
-package com.example.hara.learninguimusicapp;
+package com.example.hara.learninguimusicapp.Music;
 
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;

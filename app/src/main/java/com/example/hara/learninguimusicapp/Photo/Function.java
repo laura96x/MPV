@@ -1,4 +1,4 @@
-package com.example.hara.learninguimusicapp;
+package com.example.hara.learninguimusicapp.Photo;
 
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -20,9 +20,9 @@ public class Function {
 
     static final String KEY_ALBUM = "album_name";
     static final String KEY_PATH = "path";
-    static final String KEY_TIMESTAMP = "timestamp";
+    public static final String KEY_TIMESTAMP = "timestamp";
     static final String KEY_TIME = "date";
-    static final String KEY_COUNT = "date";
+    static final String KEY_COUNT = "count";
 
 
     public static  boolean hasPermissions(Context context, String... permissions) {
@@ -61,8 +61,7 @@ public class Function {
         Cursor cursorInternal = c.getContentResolver().query(uriInternal, projection, "bucket_display_name = \""+album_name+"\"", null, null);
         Cursor cursor = new MergeCursor(new Cursor[]{cursorExternal,cursorInternal});
 
-
-        return cursor.getCount()+" Photos";
+        return cursor.getCount() + " Photos";
     }
 
     public static String convertToTime(String timestamp)

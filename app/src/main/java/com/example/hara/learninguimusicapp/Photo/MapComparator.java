@@ -1,4 +1,4 @@
-package com.example.hara.learninguimusicapp;
+package com.example.hara.learninguimusicapp.Photo;
 
 import java.util.Comparator;
 import java.util.HashMap;

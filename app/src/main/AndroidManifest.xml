@@ -2,7 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.hara.learninguimusicapp">
 
-    <!--added the 2 lines below-->
+    <!--added the 3 lines below-->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
@@ -23,8 +24,9 @@
             </intent-filter>
         </activity>
 
-        <!--added the line below-->
-        <activity android:name=".GalleryPreview" android:configChanges="orientation|screenSize"/>
+        <!--added the lines below-->
+        <activity android:name=".Photo.GalleryPreview" android:configChanges="orientation|screenSize"/>
+        <service android:name=".Music.MusicService" />
 
     </application>
 
