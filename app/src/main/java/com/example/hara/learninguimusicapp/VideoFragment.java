@@ -2,6 +2,7 @@ package com.example.hara.learninguimusicapp;
 
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -11,6 +12,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+
+import java.util.ArrayList;
 
 
 /**
@@ -20,6 +26,12 @@ public class VideoFragment extends Fragment {
 
     private onVideoFragment mListener;
 
+    private ArrayList<String> arrayList;
+
+    private ArrayAdapter<String> adapter;
+
+
+    public ListView listView;
     public VideoFragment() {
         // Required empty public constructor
     }
@@ -30,7 +42,45 @@ public class VideoFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_video, container, false);
+        listView = view.findViewById(R.id.vidListView);
+
         mListener.setFragmentTitle("Videos");
+
+
+        Log.d("demo", "We are in the video fragment");
+
+        if (getArguments() != null) {
+//            Log.d("demo", "MusicFragment getArguments not null");
+            arrayList = (ArrayList<String>) getArguments().getSerializable(MainActivity.videoListKey);
+        }
+
+        Log.d("demo", arrayList.toString());
+
+        adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, arrayList);
+
+
+        listView.setAdapter(adapter);
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l){
+                String passTitle = (String) listView.getAdapter().getItem(i);
+
+
+
+                Intent intent = new Intent(getActivity(), VideoPlayer.class);
+                intent.putExtra("KEY",passTitle);
+
+                startActivity(intent);
+
+
+
+            }
+
+        });
+
+
+
         return view;
     }
 
@@ -38,6 +88,7 @@ public class VideoFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+
     }
 
     @Override

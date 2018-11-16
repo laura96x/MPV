@@ -67,6 +67,9 @@ public class MainActivity extends AppCompatActivity implements
     public static String galleryPathKey = "path";
     public static String musicListKey = "songs";
     static final int REQUEST_PERMISSION_KEY = 1;
+    //For Vids
+    public static String videoListKey = "vids";
+    ArrayList<String> vidList;
 
     LoadAlbum loadAlbumTask;
     GridView galleryGridView;
@@ -124,7 +127,8 @@ public class MainActivity extends AppCompatActivity implements
         //////////////////////////////////////////////////////////
 
         getSongList(); // does the sort as well
-
+        //Same for vids
+        getVidList();//Mine doesnt sort because I am better than your dual screen bull
         //////////////////////////////////////////////////////////
         // THE MUSIC SLIDING BAR VARIABLES AND CLICK LISTENERS
         //////////////////////////////////////////////////////////
@@ -304,11 +308,18 @@ public class MainActivity extends AppCompatActivity implements
                 musicFragment.setArguments(bundle);
                 break;
             case R.id.nav_videos:
+
+                VideoFragment videoFragment = new VideoFragment();
                 Log.d("demo", "menu clicked: nav_videos");
                 getSupportFragmentManager()
                         .beginTransaction()
-                        .replace(container, new VideoFragment())
+                        .replace(container, videoFragment)
                         .commit();
+                bundle = new Bundle();
+                bundle.putSerializable(videoListKey, vidList);
+                videoFragment.setArguments(bundle);
+
+
                 break;
             case R.id.nav_photos:
                 Log.d("demo", "menu clicked: nav_photos");
@@ -375,11 +386,15 @@ public class MainActivity extends AppCompatActivity implements
                 musicFragment.setArguments(bundle);
                 break;
             case 1: // video
+                VideoFragment videoFragment = new VideoFragment();
                 getSupportFragmentManager()
                         .beginTransaction()
-                        .replace(container, new VideoFragment())
+                        .replace(container, videoFragment)
                         .addToBackStack(null)
                         .commit();
+                bundle = new Bundle();
+                bundle.putSerializable(videoListKey, vidList);
+                videoFragment.setArguments(bundle);
                 navigationView.setCheckedItem(R.id.nav_videos);
                 break;
             case 2: // photos
@@ -441,7 +456,27 @@ public class MainActivity extends AppCompatActivity implements
     //////////////////////////////////////////////////////////
     // GET MUSIC FROM PHONE AND SET UP PLAY INTENT
     //////////////////////////////////////////////////////////
+    public void getVidList(){
+        vidList = new ArrayList<>();
 
+        ContentResolver contentResolver = getApplicationContext().getContentResolver();
+        Uri videoUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
+        Cursor videoCursor = contentResolver.query(videoUri,null,null,null,null);
+
+        if(videoCursor != null && videoCursor.moveToFirst()) {
+            int videoTitle = videoCursor.getColumnIndex(MediaStore.Video.Media.TITLE);
+            int videoDuration = videoCursor.getColumnIndex(MediaStore.Video.Media.DURATION);
+            do{
+                String currentTitle = videoCursor.getString(videoTitle);
+
+                vidList.add(currentTitle// + "\n" + currentDuration );
+                );
+
+            }while(videoCursor.moveToNext());
+
+        }
+
+        }
     public void getSongList() {
         songList = new ArrayList<>();
 
