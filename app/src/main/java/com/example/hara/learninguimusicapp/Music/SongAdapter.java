@@ -16,13 +16,14 @@ import com.example.hara.learninguimusicapp.R;
 
 import java.util.List;
 
+// TODO - perhaps use recycler view instead
 public class SongAdapter extends ArrayAdapter<Song> {
 
-    MainActivity thing;
+    MainActivity mainActivity;
 
     public SongAdapter(@NonNull Context context, int resource, @NonNull List<Song> objects) {
         super(context, resource, objects);
-        thing = (MainActivity) context;
+        mainActivity = (MainActivity) context;
 
     }
 
@@ -30,6 +31,9 @@ public class SongAdapter extends ArrayAdapter<Song> {
     @Override
     public View getView(final int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         final Song currentSong = getItem(position);
+        if (position == 0) {
+            Log.d("demo", "SongAdapter 0 " + currentSong.toString());
+        }
         ViewHolder viewHolder;
 
         if (convertView == null) {
@@ -50,8 +54,8 @@ public class SongAdapter extends ArrayAdapter<Song> {
             @Override
             public void onClick(View v) {
                 Log.d("demo", "clicked " + currentSong.getTitle());
-                thing.playSong(position);
-
+                // go back to the main activity and play the selected song
+                mainActivity.playSong(position);
             }
         });
 
@@ -59,6 +63,7 @@ public class SongAdapter extends ArrayAdapter<Song> {
             @Override
             public boolean onLongClick(View v) {
                 Log.d("demo", "long clicked " + currentSong.getTitle());
+                // somehow the pop-up (context) menu appears
                 return false;
             }
         });
@@ -69,4 +74,5 @@ public class SongAdapter extends ArrayAdapter<Song> {
         TextView title, artist;
         ImageView options;
     }
+
 }

@@ -5,6 +5,7 @@ import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,13 +27,17 @@ public class SongFragment extends Fragment {
     SongAdapter songAdapter;
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
+    Menu menu2;
+    int currentSort = 1; // 0 = DESC, 1 = ASC
+    // default = ASC
 
-    public static SongFragment newInstance(ArrayList<Song> songs, int sort) {
+    public static SongFragment newInstance(ArrayList<Song> songs) {
         Log.d("demo", "SongFragment.newInstance");
+        Log.d("demo", "SongFragment.newInstance " + songs.toString());
         SongFragment fragment = new SongFragment();
         Bundle args = new Bundle();
         args.putSerializable(ARG_PARAM1, songs);
-        args.putInt(ARG_PARAM2, sort); // 0 = DESC, 1 = ASC
+//        args.putInt(ARG_PARAM2, sort); // 0 = DESC, 1 = ASC
         fragment.setArguments(args);
         return fragment;
     }
@@ -43,25 +48,52 @@ public class SongFragment extends Fragment {
         Log.d("demo", "SongFragment.onCreate");
         if (getArguments() != null) {
             songs = (ArrayList<Song>) getArguments().getSerializable(ARG_PARAM1);
+            Log.d("demo", "SongFragment.onCreate " + songs.toString());
         } else {
+            Log.d("demo", "SongFragment.onCreate EMPTY ARRAY");
             songs = new ArrayList<>();
+        }
+
+        setHasOptionsMenu(true);
+    }
+
+    @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        Log.d("demo", "SongFragment.onPrepareOptionsMenu");
+        super.onPrepareOptionsMenu(menu);
+        // hide all options but the sort
+        for (int i = 0; i < menu.size(); i++) {
+            if (menu.getItem(i) == menu.findItem(R.id.menu_item_sort)) {
+                menu.getItem(i).setVisible(true);
+            } else {
+                menu.getItem(i).setVisible(false);
+            }
         }
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_song, container, false);
-        Log.d("demo", "SongFragment.onCreateView");
+    public boolean onOptionsItemSelected(MenuItem item) {
+        Log.d("demo", "MusicFragment clicked " + item.getTitle());
+        switch (item.getItemId()) {
+            case R.id.menu_item_sort:
+                if (item.getTitle().toString().contains("ASC")) {
+                    // now sorting by ASC
+                    item.setTitle("Sort DESC");
+                    currentSort = 1;
+                } else {
+                    // now sorting by DESC
+                    item.setTitle("Sort ASC");
+                    currentSort = 0;
+                }
+                break;
+        }
+        songs = sortLists(songs, currentSort);
+        songAdapter.notifyDataSetChanged();
+        return false;
+    }
 
-        ListView listView = view.findViewById(R.id.songListview);
-
-//        Log.d("demo", "a " + songs.toString());
-
-        // sort
-        assert getArguments() != null;
-        if (getArguments().getInt(ARG_PARAM2) == 1) { // ASC
+    public ArrayList<Song> sortLists(ArrayList<Song> songs, int sort) {
+        if (sort == 1) { // ASC
             Collections.sort(songs, new Comparator<Song>() {
                 @Override
                 public int compare(Song o1, Song o2) {
@@ -76,22 +108,33 @@ public class SongFragment extends Fragment {
                 }
             });
         }
+        return songs;
+    }
 
-//        Log.d("demo", "a2 " + songs.toString());
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        View view = inflater.inflate(R.layout.fragment_song, container, false);
+        Log.d("demo", "SongFragment.onCreateView");
 
+        ListView listView = view.findViewById(R.id.songListview);
         songAdapter = new SongAdapter(getContext(), R.layout.song_list_item, songs);
         listView.setAdapter(songAdapter);
-        
-        songAdapter.notifyDataSetChanged();
+
+        // needed for the pop up menus for each song
         registerForContextMenu(listView);
         return view;
     }
+
+    //////////////////////////////////////////////////////////
+    // HANDLE THE POP-UP MENUS
+    //////////////////////////////////////////////////////////
 
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
         getActivity().getMenuInflater().inflate(R.menu.song_options, menu);
-        Log.d("demo", "v id " + v.getId());
     }
 
     @Override
@@ -107,12 +150,5 @@ public class SongFragment extends Fragment {
                 return super.onContextItemSelected(item);
         }
     }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-    }
-
-
 
 }

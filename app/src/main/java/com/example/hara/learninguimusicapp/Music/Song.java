@@ -11,37 +11,29 @@ public class Song implements Serializable{
     private String name,
             artist, album, albumImage;
 
+    // constructors
     public Song(long id, double duration, String name, String artist, String album) {
         this.id = id;
         this.duration = duration;
         this.name = name;
         this.artist = artist;
         this.album = album;
-        albumImage = null;
+        albumImage = "";
         calculateMinSec();
     }
-    public Song(long id, double duration, String name, String artist, String album, String albumImage) {
-        this.id = id;
-        this.duration = duration;
-        this.name = name;
-        this.artist = artist;
-        this.album = album;
-        this.albumImage = albumImage;
-        calculateMinSec();
-    }
-
     public Song(String name, String artist) {
         id = 0;
         duration = 0;
         this.name = name;
         this.artist = artist;
-        this.album = null;
+        this.album = "";
         min = 0;
         sec = 0;
-        albumImage = null;
+        albumImage = "";
 
     }
 
+    // use duration to get length of song in minutes and seconds
     public void calculateMinSec() {
         min = (int) Math.floor(duration / 60);
         sec = (int) Math.round(duration % 60);
@@ -50,7 +42,6 @@ public class Song implements Serializable{
     public long getId() {
         return id;
     }
-
     public void setId(long id) {
         this.id = id;
     }
@@ -58,7 +49,6 @@ public class Song implements Serializable{
     public String getTitle() {
         return name;
     }
-
     public void setTitle(String name) {
         this.name = name;
     }
@@ -66,7 +56,6 @@ public class Song implements Serializable{
     public String getArtist() {
         return artist;
     }
-
     public void setArtist(String artist) {
         this.artist = artist;
     }
@@ -74,7 +63,6 @@ public class Song implements Serializable{
     public String getName() {
         return name;
     }
-
     public void setName(String name) {
         this.name = name;
     }
@@ -82,31 +70,44 @@ public class Song implements Serializable{
     public String getAlbum() {
         return album;
     }
-
     public void setAlbum(String album) {
         this.album = album;
     }
 
-//    @Override
-//    public String toString() {
-//        return "Song{" +
-//                "name='" + name + '\'' +
-//                ", artist='" + artist + '\'' +
-//                '}';
-//    }
+    public double getDuration() {
+        return duration;
+    }
+    public void setDuration(double duration) {
+        this.duration = duration;
+    }
 
+    public int getMin() {
+        return min;
+    }
+    public void setMin(int min) {
+        this.min = min;
+    }
+
+    public int getSec() {
+        return sec;
+    }
+    public void setSec(int sec) {
+        this.sec = sec;
+    }
+
+    public String getAlbumImage() {
+        return albumImage;
+    }
+    public void setAlbumImage(String albumImage) {
+        this.albumImage = albumImage;
+    }
 
     @Override
     public String toString() {
-        return "Song{" +
-                "id=" + id +
-                ", duration=" + duration +
-                ", min=" + min +
-                ", sec=" + sec +
+        return "\nSong{" +
+
                 ", name='" + name + '\'' +
-                ", artist='" + artist + '\'' +
-                ", album='" + album + '\'' +
-                ", albumImage='" + albumImage + '\'' +
+
                 '}';
     }
 }

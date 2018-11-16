@@ -13,6 +13,8 @@ import android.support.v4.app.Fragment;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -30,7 +32,6 @@ public class AlbumPicturesFragment extends Fragment {
 
     private onAlbumPicturesFragment mListener;
 
-    ArrayList<HashMap<String, String>> imageList = new ArrayList<HashMap<String, String>>();
     GridView galleryGridView;
     LoadAlbumImages loadAlbumTask;
     String album_name = "";
@@ -48,13 +49,33 @@ public class AlbumPicturesFragment extends Fragment {
     }
 
     @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        Log.d("demo", "AlbumPicturesFragment.onPrepareOptionsMenu");
+        super.onPrepareOptionsMenu(menu);
+        // hide all options but the sort date
+        for (int i = 0; i < menu.size(); i++) {
+            if (menu.getItem(i) == menu.findItem(R.id.menu_item_sort_date)) {
+                menu.getItem(i).setVisible(true);
+            } else {
+                menu.getItem(i).setVisible(false);
+            }
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        Log.d("demo", "AlbumPicturesFragment clicked " + item.getTitle());
+        return true;
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.photo_picture_grid_view, container, false);
         Log.d("demo", "AlbumPicturesFragment.onCreateView");
         if (getArguments() != null) {
             album_name = getArguments().getString(MainActivity.albumNameKey);
-            getActivity().setTitle(album_name);
+            mListener.setFragmentTitle(album_name);
         }
 
         galleryGridView = view.findViewById(R.id.galleryGridView);
@@ -65,13 +86,11 @@ public class AlbumPicturesFragment extends Fragment {
 
         float dp = iDisplayWidth / (metrics.densityDpi / 160f);
 
-        if(dp < 360)
-        {
+        if(dp < 360) {
             dp = (dp - 17) / 2;
             float px = Function.convertDpToPixel(dp, getContext().getApplicationContext());
             galleryGridView.setColumnWidth(Math.round(px));
         }
-
 
         loadAlbumTask = new LoadAlbumImages();
         loadAlbumTask.execute();
@@ -97,6 +116,9 @@ public class AlbumPicturesFragment extends Fragment {
     }
 
     class LoadAlbumImages extends AsyncTask<String, Void, String> {
+
+        ArrayList<HashMap<String, String>> imageList = new ArrayList<>();
+
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
@@ -149,5 +171,6 @@ public class AlbumPicturesFragment extends Fragment {
     public interface onAlbumPicturesFragment {
         void fromPictureToGallery(String path);
         void getBackButton();
+        void setFragmentTitle(String title);
     }
 }
