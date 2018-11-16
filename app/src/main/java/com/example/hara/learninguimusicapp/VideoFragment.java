@@ -30,7 +30,6 @@ public class VideoFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_video, container, false);
-//        getActivity().setTitle("Videos");
         mListener.setFragmentTitle("Videos");
         return view;
     }
@@ -44,8 +43,14 @@ public class VideoFragment extends Fragment {
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
-        MenuItem menuItem = menu.findItem(R.id.menu_item_switch);
-        menuItem.setVisible(false);
+        // hide all options but the sort
+        for (int i = 0; i < menu.size(); i++) {
+            if (menu.getItem(i) == menu.findItem(R.id.menu_item_sort)) {
+                menu.getItem(i).setVisible(true);
+            } else {
+                menu.getItem(i).setVisible(false);
+            }
+        }
     }
 
     @Override
@@ -72,7 +77,6 @@ public class VideoFragment extends Fragment {
     }
 
     public interface onVideoFragment {
-        // TODO: Update argument type and name
         void setFragmentTitle(String title);
     }
 }

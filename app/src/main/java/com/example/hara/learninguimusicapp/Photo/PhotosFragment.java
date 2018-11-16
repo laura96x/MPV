@@ -1,4 +1,4 @@
-package com.example.hara.learninguimusicapp;
+package com.example.hara.learninguimusicapp.Photo;
 
 
 import android.content.Context;
@@ -15,6 +15,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
+
+import com.example.hara.learninguimusicapp.MainActivity;
+import com.example.hara.learninguimusicapp.R;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 

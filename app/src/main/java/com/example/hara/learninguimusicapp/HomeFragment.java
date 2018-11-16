@@ -27,11 +27,12 @@ public class HomeFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_home, container, false);
-        getActivity().setTitle("Home");
+        mListener.setFragmentTitle("Home");
         goToMusic = view.findViewById(R.id.buttonToMusic);
         goToVideo = view.findViewById(R.id.buttonToVideo);
         goToPhotos = view.findViewById(R.id.buttonToPhotos);
 
+        // click listeners for buttons
         goToMusic.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -66,6 +67,7 @@ public class HomeFragment extends Fragment {
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
+        // this will make the whole menu disappear
         for (int i = 0; i < menu.size(); i++) {
             menu.getItem(i).setVisible(false);
         }
@@ -90,5 +92,6 @@ public class HomeFragment extends Fragment {
 
     public interface onHomeFragment{
         void fromHomeToOther(int num);
+        void setFragmentTitle(String title);
     }
 }

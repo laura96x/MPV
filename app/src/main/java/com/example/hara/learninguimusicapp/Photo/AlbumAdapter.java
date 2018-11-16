@@ -1,4 +1,4 @@
-package com.example.hara.learninguimusicapp;
+package com.example.hara.learninguimusicapp.Photo;
 
 import android.app.Activity;
 import android.view.LayoutInflater;
@@ -9,6 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.example.hara.learninguimusicapp.R;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -35,15 +36,15 @@ public class AlbumAdapter extends BaseAdapter {
     }
 
     public View getView(int position, View convertView, ViewGroup parent) {
-        AlbumViewHolder holder = null;
+        AlbumViewHolder holder;
         if (convertView == null) {
             holder = new AlbumViewHolder();
             convertView = LayoutInflater.from(activity).inflate(
                     R.layout.album_row, parent, false);
 
-            holder.galleryImage = (ImageView) convertView.findViewById(R.id.galleryImage);
-            holder.gallery_count = (TextView) convertView.findViewById(R.id.gallery_count);
-            holder.gallery_title = (TextView) convertView.findViewById(R.id.gallery_title);
+            holder.galleryImage = convertView.findViewById(R.id.galleryImage);
+            holder.gallery_count = convertView.findViewById(R.id.gallery_count);
+            holder.gallery_title = convertView.findViewById(R.id.gallery_title);
 
             convertView.setTag(holder);
         } else {
@@ -54,8 +55,7 @@ public class AlbumAdapter extends BaseAdapter {
         holder.gallery_count.setId(position);
         holder.gallery_title.setId(position);
 
-        HashMap < String, String > song = new HashMap < String, String > ();
-        song = data.get(position);
+        HashMap < String, String > song = data.get(position);
         try {
             holder.gallery_title.setText(song.get(Function.KEY_ALBUM));
             holder.gallery_count.setText(song.get(Function.KEY_COUNT));

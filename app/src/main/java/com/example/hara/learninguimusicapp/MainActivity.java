@@ -1,12 +1,17 @@
 package com.example.hara.learninguimusicapp;
 
 import android.Manifest;
+import android.content.ComponentName;
+import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.MergeCursor;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.IBinder;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -24,13 +29,24 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.GridView;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.Toast;
 
+import com.example.hara.learninguimusicapp.Music.MusicFragment;
+import com.example.hara.learninguimusicapp.Music.MusicService;
+import com.example.hara.learninguimusicapp.Music.Song;
+import com.example.hara.learninguimusicapp.Photo.AlbumPicturesFragment;
+import com.example.hara.learninguimusicapp.Photo.Function;
+import com.example.hara.learninguimusicapp.Photo.GalleryPreview;
+import com.example.hara.learninguimusicapp.Photo.MapComparator;
+import com.example.hara.learninguimusicapp.Photo.PhotosFragment;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 
 public class MainActivity extends AppCompatActivity implements
@@ -49,15 +65,22 @@ public class MainActivity extends AppCompatActivity implements
     public static String albumNameKey = "album name";
     public static String albumListKey = "album list";
     public static String galleryPathKey = "path";
-
+    public static String musicListKey = "songs";
     static final int REQUEST_PERMISSION_KEY = 1;
+
     LoadAlbum loadAlbumTask;
     GridView galleryGridView;
     ArrayList<HashMap<String, String>> albumList = new ArrayList<>();
 
+    ArrayList<Song> songList;
+    Intent playIntent;
+    MusicService musicSrv;
+    boolean musicBound = false;
+    SlidingUpPanelLayout slidingPanel;
+    RelativeLayout musicPanel;
+    LinearLayout panelTop;
     ImageButton play, pause, play_main, pause_main;
     ImageButton repeat, shuffle;
-    private SlidingUpPanelLayout mLayout;
     boolean onRepeat = false;
     boolean onShuffle = false;
     SeekBar songTimeBar;
@@ -66,6 +89,10 @@ public class MainActivity extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //////////////////////////////////////////////////////////
+        // THE TOOLBAR AND THE NAV MENU
+        //////////////////////////////////////////////////////////
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -83,11 +110,28 @@ public class MainActivity extends AppCompatActivity implements
             navigationView.setCheckedItem(R.id.nav_home);
         }
 
+        //////////////////////////////////////////////////////////
+        // ASK FOR PERMISSIONS
+        //////////////////////////////////////////////////////////
+
         String[] PERMISSIONS = {Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE};
         if (!Function.hasPermissions(this, PERMISSIONS)) {
             ActivityCompat.requestPermissions(this, PERMISSIONS, REQUEST_PERMISSION_KEY);
         }
 
+        //////////////////////////////////////////////////////////
+        // GET THE SONGS ON THE PHONE
+        //////////////////////////////////////////////////////////
+
+        getSongList(); // does the sort as well
+
+        //////////////////////////////////////////////////////////
+        // THE MUSIC SLIDING BAR VARIABLES AND CLICK LISTENERS
+        //////////////////////////////////////////////////////////
+
+        slidingPanel = findViewById(R.id.slidingPanel);
+        musicPanel = findViewById(R.id.musicPanel);
+        panelTop = findViewById(R.id.panel_top_part);
         play = findViewById(R.id.play_button);
         pause = findViewById(R.id.pause_button);
         play_main = findViewById(R.id.play_button_main);
@@ -95,7 +139,23 @@ public class MainActivity extends AppCompatActivity implements
         repeat = findViewById(R.id.repeat_button);
         shuffle = findViewById(R.id.shuffle_button);
         songTimeBar = findViewById(R.id.song_time_seekbar);
-        mLayout = findViewById(R.id.slidingPanel);
+
+        // hide music panel until a song is playing
+        slidingPanel.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
+
+        // open or close panel when clicked, dragging it still works
+        panelTop.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (slidingPanel.getPanelState() == SlidingUpPanelLayout.PanelState.COLLAPSED) {
+                    slidingPanel.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
+                } else {
+                    slidingPanel.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+                }
+            }
+        });
+
+        // TODO - figure out a way to reduce the code of all the click listeners
 
         play.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -176,20 +236,28 @@ public class MainActivity extends AppCompatActivity implements
         });
     }
 
+    //////////////////////////////////////////////////////////
+    // CREATE OPTIONS MENU (3 VERTICAL DOTS)
+    //////////////////////////////////////////////////////////
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
+    //////////////////////////////////////////////////////////
+    // HANDLE BACK PRESS FUNCTION
+    //////////////////////////////////////////////////////////
+
     @Override
     public void onBackPressed() {
         Log.d("demo", "pop stack: " + getSupportFragmentManager().getBackStackEntryCount());
-        if (mLayout != null &&
-                (mLayout.getPanelState() == SlidingUpPanelLayout.PanelState.EXPANDED ||
-                        mLayout.getPanelState() == SlidingUpPanelLayout.PanelState.ANCHORED)) {
+        if (slidingPanel != null &&
+                (slidingPanel.getPanelState() == SlidingUpPanelLayout.PanelState.EXPANDED ||
+                        slidingPanel.getPanelState() == SlidingUpPanelLayout.PanelState.ANCHORED)) {
             // if music bar is open
-            mLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+            slidingPanel.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
         } else {
             // if music bar is closed
             if (drawer.isDrawerOpen(GravityCompat.START)) {
@@ -207,10 +275,15 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
+    //////////////////////////////////////////////////////////
+    // HANDLE CLICK LISTENERS OF NAV MENU ITEMS
+    //////////////////////////////////////////////////////////
+
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
         Log.d("demo", "main menu " + menuItem);
         clearBackStack();
+        Bundle bundle;
         switch (menuItem.getItemId()) {
             case R.id.nav_home:
                 Log.d("demo", "menu clicked: nav_home");
@@ -221,10 +294,14 @@ public class MainActivity extends AppCompatActivity implements
                 break;
             case R.id.nav_music:
                 Log.d("demo", "menu clicked: nav_music");
+                MusicFragment musicFragment = new MusicFragment();
                 getSupportFragmentManager()
                         .beginTransaction()
-                        .replace(container, new MusicFragment())
+                        .replace(container, musicFragment)
                         .commit();
+                bundle = new Bundle();
+                bundle.putSerializable(musicListKey, songList);
+                musicFragment.setArguments(bundle);
                 break;
             case R.id.nav_videos:
                 Log.d("demo", "menu clicked: nav_videos");
@@ -240,7 +317,7 @@ public class MainActivity extends AppCompatActivity implements
                         .beginTransaction()
                         .replace(container, photosFragment)
                         .commit();
-                Bundle bundle = new Bundle();
+                bundle = new Bundle();
                 bundle.putSerializable(albumListKey, albumList);
                 photosFragment.setArguments(bundle);
                 break;
@@ -255,17 +332,47 @@ public class MainActivity extends AppCompatActivity implements
         return true;
     }
 
+    //////////////////////////////////////////////////////////
+    // TOOLBAR CLICK LISTENER (MAY BE UNNECESSARY)
+    //////////////////////////////////////////////////////////
+
+    @Override
+    public void onClick(View v) {
+        Log.d("demo", "in main onClick");
+        clearBackStack();
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(container, new HomeFragment())
+                .commit();
+        navigationView.setCheckedItem(R.id.nav_home);
+        setTitle("Home");
+    }
+
+    //////////////////////////////////////////////////////////
+    // FRAGMENT INTERFACES
+    //////////////////////////////////////////////////////////
+
+    @Override
+    public void setFragmentTitle(String title) {
+        setTitle(title);
+    }
+
     @Override
     public void fromHomeToOther(int num) {
         Log.d("demo", "in main.fromHomeToOther" + num);
+        Bundle bundle;
         switch (num) {
             case 0: // music
+                MusicFragment musicFragment = new MusicFragment();
                 getSupportFragmentManager()
                         .beginTransaction()
-                        .replace(container, new MusicFragment())
+                        .replace(container, musicFragment)
                         .addToBackStack(null)
                         .commit();
                 navigationView.setCheckedItem(R.id.nav_music);
+                bundle = new Bundle();
+                bundle.putSerializable(musicListKey, songList);
+                musicFragment.setArguments(bundle);
                 break;
             case 1: // video
                 getSupportFragmentManager()
@@ -283,7 +390,7 @@ public class MainActivity extends AppCompatActivity implements
                         .addToBackStack(null)
                         .commit();
                 navigationView.setCheckedItem(R.id.nav_photos);
-                Bundle bundle = new Bundle();
+                bundle = new Bundle();
                 bundle.putSerializable(albumListKey, albumList);
                 photosFragment.setArguments(bundle);
                 break;
@@ -307,24 +414,16 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onClick(View v) {
-//        Log.d("demo", "in main onClick");
-        clearBackStack();
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(container, new HomeFragment())
-                .commit();
-        navigationView.setCheckedItem(R.id.nav_home);
-        setTitle("Home");
-    }
-
-    @Override
     public void fromPictureToGallery(String path) {
         Intent intent = new Intent(MainActivity.this, GalleryPreview.class);
         intent.putExtra(galleryPathKey, path);
         startActivity(intent);
     }
 
+    //////////////////////////////////////////////////////////
+    // ATTEMPT TO REPLACE NAV BUTTON WITH BACK ARROW IN PHOTOS
+    //////////////////////////////////////////////////////////
+    // TODO - come back to this for Sprint 3
     @Override
     public void getBackButton() {
         Log.d("demo", "in main.getBackButton");
@@ -339,10 +438,107 @@ public class MainActivity extends AppCompatActivity implements
         return true;
     }
 
-    @Override
-    public void setFragmentTitle(String title) {
-        setTitle(title);
+    //////////////////////////////////////////////////////////
+    // GET MUSIC FROM PHONE AND SET UP PLAY INTENT
+    //////////////////////////////////////////////////////////
+
+    public void getSongList() {
+        songList = new ArrayList<>();
+
+        ContentResolver musicResolver = getContentResolver();
+        Uri musicUri = android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+        Cursor musicCursor = musicResolver.query(musicUri, null, null, null, null);
+
+        if (musicCursor != null && musicCursor.moveToFirst()) {
+            // get columns
+            int titleColumn = musicCursor.getColumnIndex(android.provider.MediaStore.Audio.Media.TITLE);
+            int idColumn = musicCursor.getColumnIndex(android.provider.MediaStore.Audio.Media._ID);
+            int artistColumn = musicCursor.getColumnIndex(android.provider.MediaStore.Audio.Media.ARTIST);
+            int albumColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.ALBUM);
+            int durationColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.DURATION);
+
+            int albumId = musicCursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID);
+
+            // TODO - not sure how to get album image, perhaps it's just my emulator
+            Cursor albumCursor = getContentResolver().query(MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI,
+                    new String[] {MediaStore.Audio.Albums._ID, MediaStore.Audio.Albums.ALBUM_ART},
+                    MediaStore.Audio.Albums._ID + "=?",
+                    new String[] {String.valueOf(albumId)},
+                    null);
+
+            long thisId;
+            double thisDuration;
+            String thisTitle;
+            String thisArtist, thisAlbum, thisAlbumImage;
+
+            // add songs to list
+            do {
+
+                thisId = musicCursor.getLong(idColumn);
+                thisTitle = musicCursor.getString(titleColumn);
+                thisArtist = musicCursor.getString(artistColumn);
+                thisAlbum = musicCursor.getString(albumColumn);
+                thisDuration = musicCursor.getDouble(durationColumn) / 1000;
+
+
+                songList.add(new Song(thisId, thisDuration, thisTitle, thisArtist, thisAlbum));
+
+            } while (musicCursor.moveToNext());
+        }
+
+        // sort music list
+        Collections.sort(songList, new Comparator<Song>(){
+            public int compare(Song a, Song b){
+                return a.getTitle().compareTo(b.getTitle());
+            }
+        });
     }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (playIntent == null) {
+            playIntent = new Intent(this, MusicService.class);
+            bindService(playIntent, musicConnection, Context.BIND_AUTO_CREATE);
+            startService(playIntent);
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        stopService(playIntent);
+        musicSrv = null;
+        super.onDestroy();
+    }
+
+    public void playSong(int position) {
+        // this method is called from SongAdapter.getView
+        musicSrv.setSong(position);
+        musicSrv.playSong();
+        slidingPanel.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED); // show music bar
+        // TODO - set the contents of the sliding panel to the specified song
+        // TODO - make another method
+    }
+
+    // connect to the service
+    public ServiceConnection musicConnection = new ServiceConnection(){
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            MusicService.MusicBinder binder = (MusicService.MusicBinder) service;
+            musicSrv = binder.getService();
+            musicSrv.setList(songList);
+            musicBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            musicBound = false;
+        }
+    };
+
+    //////////////////////////////////////////////////////////
+    // GET PHOTOS FROM PHONE & PERMISSIONS
+    //////////////////////////////////////////////////////////
 
     public class LoadAlbum extends AsyncTask<String, Void, String> {
         @Override
@@ -382,7 +578,7 @@ public class MainActivity extends AppCompatActivity implements
                 albumList.add(Function.mappingInbox(album, path, timestamp, Function.convertToTime(timestamp), countPhoto));
             }
             cursor.close();
-            Collections.sort(albumList, new MapComparator(Function.KEY_TIMESTAMP, "dsc")); // Arranging photo album by timestamp decending
+            Collections.sort(albumList, new MapComparator(Function.KEY_TIMESTAMP, "desc")); // Arranging photo album by timestamp descending
             return xml;
         }
 
@@ -422,6 +618,10 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
+    //////////////////////////////////////////////////////////
+    // CLEAR THE BACK STACK
+    //////////////////////////////////////////////////////////
+
     private void clearBackStack() {
         Log.d("demo" , "in main.clearBackStack");
         if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
@@ -431,4 +631,6 @@ public class MainActivity extends AppCompatActivity implements
             getSupportFragmentManager().executePendingTransactions();
         }
     }
+
+
 }

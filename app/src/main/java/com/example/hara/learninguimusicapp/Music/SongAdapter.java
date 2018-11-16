@@ -1,4 +1,4 @@
-package com.example.hara.learninguimusicapp;
+package com.example.hara.learninguimusicapp.Music;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -11,18 +11,29 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.hara.learninguimusicapp.MainActivity;
+import com.example.hara.learninguimusicapp.R;
+
 import java.util.List;
 
+// TODO - perhaps use recycler view instead
 public class SongAdapter extends ArrayAdapter<Song> {
+
+    MainActivity mainActivity;
 
     public SongAdapter(@NonNull Context context, int resource, @NonNull List<Song> objects) {
         super(context, resource, objects);
+        mainActivity = (MainActivity) context;
+
     }
 
     @NonNull
     @Override
-    public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+    public View getView(final int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         final Song currentSong = getItem(position);
+        if (position == 0) {
+            Log.d("demo", "SongAdapter 0 " + currentSong.toString());
+        }
         ViewHolder viewHolder;
 
         if (convertView == null) {
@@ -43,6 +54,8 @@ public class SongAdapter extends ArrayAdapter<Song> {
             @Override
             public void onClick(View v) {
                 Log.d("demo", "clicked " + currentSong.getTitle());
+                // go back to the main activity and play the selected song
+                mainActivity.playSong(position);
             }
         });
 
@@ -50,6 +63,7 @@ public class SongAdapter extends ArrayAdapter<Song> {
             @Override
             public boolean onLongClick(View v) {
                 Log.d("demo", "long clicked " + currentSong.getTitle());
+                // somehow the pop-up (context) menu appears
                 return false;
             }
         });
@@ -60,4 +74,5 @@ public class SongAdapter extends ArrayAdapter<Song> {
         TextView title, artist;
         ImageView options;
     }
+
 }
