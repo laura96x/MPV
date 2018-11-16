@@ -24,6 +24,11 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".VideoPlayer"
+            android:theme="@style/Theme.AppCompat.DayNight.NoActionBar">
+
+        </activity>
+
         <!--added the lines below-->
         <activity android:name=".Photo.GalleryPreview" android:configChanges="orientation|screenSize"/>
         <service android:name=".Music.MusicService" />
